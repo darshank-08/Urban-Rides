@@ -1,0 +1,83 @@
+# ---------------------------------------------------
+# Urban Rides Backend - Spring Boot .gitignore
+# ---------------------------------------------------
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Logs
+*.log
+logs/
+spring.log
+
+# Java & JVM
+*.class
+*.jar
+*.war
+*.ear
+
+# OS Generated
+.DS_Store
+Thumbs.db
+
+# IDE Folders
+# IntelliJ Idea
+.idea/
+*.iml
+out/
+# VS Code
+.vscode/
+
+# Eclipse / STS
+.apt_generated/
+.classpath
+.project
+.settings/
+bin/
+
+# Cache
+*.cache
+.cache/
+*.tmp
+*.swp
+*.swo
+
+# Test reports
+surefire-reports/
+test-output/
+
+# Environment Files
+.env
+*.env
+
+# Uploads (User files)
+uploads/
+documents/
+images/
+
+# Security keys
+*.pem
+*.key
+*.p12
+
+# Node modules (if frontend folder exists inside backend)
+node_modules/
+
+# Build artifacts
+build/
+dist/
+
+application.properties
+application.yml
+*.properties
+*.yml
+
+
+# ---------------------------------------------------
+# END
+# ---------------------------------------------------
