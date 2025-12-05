@@ -29,11 +29,11 @@ public class OwnerUserService {
         return  userRepository.findAll();
     }
 
-    // Register or Save User
+    // Register or Save User (Owner)
     public User saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         List<String> defaultRoles = new ArrayList<>();
-        defaultRoles.add("USER");
+        defaultRoles.add("OWNER");
         user.setRoles(defaultRoles);
         return userRepository.save(user);
     }

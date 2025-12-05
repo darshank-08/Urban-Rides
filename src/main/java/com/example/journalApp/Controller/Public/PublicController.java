@@ -2,6 +2,7 @@ package com.example.journalApp.Controller.Public;
 
 import com.example.journalApp.Entity.SuperAdmin;
 import com.example.journalApp.Entity.User;
+import com.example.journalApp.Service.RenterUserService;
 import com.example.journalApp.Service.SuperAdminService;
 import com.example.journalApp.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,20 @@ public class PublicController {
     OwnerUserService ownerUserService;
 
     @Autowired
+    RenterUserService renterUserService;
+
+    @Autowired
     SuperAdminService superAdminService;
 
-    @PostMapping("/add-user")
-    public ResponseEntity<?> add(@RequestBody User user){
+    @PostMapping("/add-owner")
+    public ResponseEntity<?> addOwner(@RequestBody User user){
         ownerUserService.saveUser(user);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PostMapping("/add-renter")
+    public ResponseEntity<?> addRenter(@RequestBody User user){
+        renterUserService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

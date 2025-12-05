@@ -1,16 +1,16 @@
 package com.example.journalApp.Controller.User;
 
-import com.example.journalApp.Entity.Car;
+import com.example.journalApp.Entity.Booking;
+import com.example.journalApp.Entity.Delete;
 import com.example.journalApp.Entity.User;
-import com.example.journalApp.Repository.UserRepository;
-import com.example.journalApp.Service.CarService;
+import com.example.journalApp.Repository.BookingRepository;
+import com.example.journalApp.Service.BookingService;
 import com.example.journalApp.Service.OwnerUserService;
 import com.example.journalApp.Service.RenterUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,10 +24,10 @@ public class RenterController {
     OwnerUserService ownerUserService;
 
     @Autowired
-    private UserRepository userRepository;
+    BookingService bookingService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    BookingRepository bookingRepository;
 
     // updating user
     @PutMapping("/update")
@@ -45,9 +45,56 @@ public class RenterController {
         return ResponseEntity.ok(renterUserService.activeCars());
     }
 
-    @GetMapping("/car/{carId}")
-    public ResponseEntity<?> carDetails(@PathVariable String carId){
-        ResponseEntity<?> allCarDetails = renterUserService.CarDetails(carId);
-        return ResponseEntity.ok(allCarDetails);
+    @GetMapping("/car/{carID}")
+    public ResponseEntity<?> CarDetails(@PathVariable String carID) {
+        return renterUserService.CarDetails(carID);
+    }
+
+
+    @PostMapping("/booking/{carId}")
+    public ResponseEntity<?> BookingCar(@PathVariable String carId,
+                                        @RequestBody Booking req){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        ResponseEntity<?> bookProcess =  bookingService.bookCar(carId,req, userName);
+        return ResponseEntity.ok(bookProcess);
+    }
+
+    @GetMapping("/my-Bookings")
+    public ResponseEntity<?> Bookings(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        ResponseEntity<?> bookings = bookingService.myBookings(userName);
+        return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("my-Bookings/{id}")
+    public ResponseEntity<?> getBooking(@PathVariable String id) {
+
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        booking = bookingService.autoUpdateStatus(booking);
+
+        return ResponseEntity.ok(booking);
+    }
+
+
+    @PutMapping("/cancel-booking/{id}")
+    public ResponseEntity<?> cancelBooking(@PathVariable String id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        return renterUserService.cancelBooking(id);
+    }
+
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<?> deleteAccount(@RequestBody Delete body) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        return renterUserService.deleteAccount(userName, body.getPassword());
     }
 }

@@ -1,7 +1,9 @@
 package com.example.journalApp.Controller.Admin;
 
 import com.example.journalApp.Entity.Car;
+import com.example.journalApp.Entity.User;
 import com.example.journalApp.Service.AdminService;
+import com.example.journalApp.Service.OwnerUserService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,9 @@ public class AdminController {
 
     @Autowired
     AdminService adminService;
+
+    @Autowired
+    OwnerUserService ownerUserService;
 
     // Get all Approval pending Cars
     @GetMapping("/pending-cars")
@@ -68,6 +73,24 @@ public class AdminController {
     public ResponseEntity<?> rejectedCarsToday(){
         List<Car> rejectedToday = adminService.getTodayRejectedCars();
         return ResponseEntity.ok(rejectedToday);
+    }
+
+    @GetMapping("/Get-Users")
+    public ResponseEntity<?> GetUsers(){
+        List<User> All = ownerUserService.getUsers();
+        return ResponseEntity.ok(All);
+    }
+
+    @GetMapping("/Get-owners")
+    public ResponseEntity<?> owners(){
+        List<User> owners = adminService.owners();
+        return ResponseEntity.ok(owners);
+    }
+
+    @GetMapping("/Get-renters")
+    public ResponseEntity<?> renters(){
+        List<User> renters = adminService.renters();
+        return ResponseEntity.ok(renters);
     }
 
 }

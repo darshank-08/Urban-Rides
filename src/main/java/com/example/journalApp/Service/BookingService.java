@@ -1,0 +1,124 @@
+package com.example.journalApp.Service;
+
+import com.example.journalApp.Entity.Booking;
+import com.example.journalApp.Entity.Car;
+import com.example.journalApp.Entity.User;
+import com.example.journalApp.Repository.BookingRepository;
+import com.example.journalApp.Repository.CarRepository;
+import com.example.journalApp.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class BookingService {
+
+    @Autowired
+    CarRepository carRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    BookingRepository bookingRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    public ResponseEntity<?> bookCar(String carID, Booking req, String userName) {
+
+        // 1. Fetch car
+        Car car = carRepository.findById(carID)
+                .orElse(null);
+
+        if (car == null) {
+            return ResponseEntity.badRequest().body("Car not found");
+        }
+
+        // 2. Fetch userID
+        User renter = userRepository.findByUserName(userName);
+
+
+        // 2. Validate dates
+        LocalDate startDate = req.getStartDate();
+        LocalDate endDate = req.getEndDate();
+
+        if (startDate == null || endDate == null) {
+            return ResponseEntity.badRequest().body("Start & end dates are required");
+        }
+
+        if (endDate.isBefore(startDate)) {
+            return ResponseEntity.badRequest().body("End date cannot be before start date");
+        }
+
+        // 3. Overlap check
+        List<Booking> existing = bookingRepository.findByCarIdAndStatus(carID, "CONFIRMED");
+
+        for (Booking b : existing) {
+            boolean overlap =
+                    !startDate.isAfter(b.getEndDate()) &&
+                            !endDate.isBefore(b.getStartDate());
+
+            if (overlap) {
+                return ResponseEntity.badRequest().body("Car already booked for these dates");
+            }
+        }
+
+        // 4. Setting up price
+        long days = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+        double totalPrize = days * car.getPricePerDay();
+
+        // creating fresh obj to avoid the unauthentic access to booking entity
+        Booking booking = new Booking();
+
+        booking.setCarId(carID);
+        booking.setRenterId(renter.getId());
+        booking.setTotalPrice(totalPrize);
+        booking.setBookedAt(LocalDateTime.now());
+        booking.setStatus("CONFIRMED");
+
+        // User fields:
+        booking.setStartDate(startDate);
+        booking.setEndDate(endDate);
+        booking.setPaymentMethod(req.getPaymentMethod());
+
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok("Booked successfully!");
+    }
+
+    public ResponseEntity<?> myBookings(String userName) {
+        User renter = userRepository.findByUserName(userName);
+
+        List<Booking> myBookings = bookingRepository.findByrenterId(renter.getId());
+
+        if (myBookings.isEmpty()){
+            return ResponseEntity.badRequest().body("No bookings!");
+        }
+
+        return ResponseEntity.ok(myBookings);
+
+    }
+
+    public Booking autoUpdateStatus(Booking booking) {
+        LocalDate today = LocalDate.now();
+
+        if (booking.getEndDate().isBefore(today)
+                && booking.getStatus().equals("ACTIVE")) {
+
+            booking.setStatus("COMPLETED");
+            bookingRepository.save(booking);
+        }
+
+        return booking;
+    }
+
+
+}

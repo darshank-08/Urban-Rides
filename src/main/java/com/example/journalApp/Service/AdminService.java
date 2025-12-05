@@ -1,7 +1,9 @@
 package com.example.journalApp.Service;
 
 import com.example.journalApp.Entity.Car;
+import com.example.journalApp.Entity.User;
 import com.example.journalApp.Repository.CarRepository;
+import com.example.journalApp.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,9 @@ public class AdminService {
 
     @Autowired
     private CarRepository carRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // Get all Approval pending Cars
     public List<Car> getPendingCars() {
@@ -89,6 +94,14 @@ public class AdminService {
     public List<Car> getTodayRejectedCars() {
         LocalDateTime start = LocalDate.now().atStartOfDay();
         return carRepository.findByRejectedAtAfter(start);
+    }
+
+    public List<User> owners(){
+        return userRepository.findByRolesContaining("OWNER");
+    }
+
+    public List<User> renters(){
+        return userRepository.findByRolesContaining("RENTER");
     }
 
 }

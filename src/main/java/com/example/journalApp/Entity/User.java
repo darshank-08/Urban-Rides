@@ -17,5 +17,4 @@ public class User {
     private Integer number;
     private List<String> roles;
 
-
 }
