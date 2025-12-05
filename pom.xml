@@ -10,9 +10,9 @@
 
 
     <groupId>com.example</groupId>
-	<artifactId>journalApp</artifactId>
+	<artifactId>UrbanRides</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>journal App</name>
+	<name>car rental App</name>
 	<description>E2EE JOURNAL APP</description>
 	<url/>
 	<licenses>
