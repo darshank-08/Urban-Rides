@@ -25,6 +25,8 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/SuperAdmin/**").hasRole("superAdmin")
                 .antMatchers("/Admin/**").hasAnyRole("ADMIN", "superAdmin")
+                .antMatchers("/Owner/**").hasRole("USER")
+                .antMatchers("/Renter/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

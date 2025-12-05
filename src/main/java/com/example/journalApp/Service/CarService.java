@@ -61,7 +61,6 @@ public class CarService {
 
         // When updated → send pending for review again
         existing.setStatus("PENDING_APPROVAL");
-        existing.setRejectionReason(null);
 
         return carRepository.save(existing);
     }

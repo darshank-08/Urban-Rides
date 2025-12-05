@@ -3,7 +3,7 @@ package com.example.journalApp.Controller.User;
 import com.example.journalApp.Entity.Car;
 import com.example.journalApp.Entity.User;
 import com.example.journalApp.Service.CarService;
-import com.example.journalApp.Service.UserService;
+import com.example.journalApp.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,11 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("User")
-public class UserController {
+@RequestMapping("/Owner")
+public class OwnerController {
 
     @Autowired
-    UserService userService;
+    OwnerUserService ownerUserService;
 
     @Autowired
     CarService carService;
@@ -26,7 +26,7 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
 
-        userService.updateUser(userName, req);
+        ownerUserService.updateUser(userName, req);
         return ResponseEntity.ok("User Updated Successfully!");
     }
 
@@ -35,7 +35,7 @@ public class UserController {
     public ResponseEntity<?> delete(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        userService.delete(userName);
+        ownerUserService.delete(userName);
         return ResponseEntity.ok("User Deleted Successfully!");
     }
 
@@ -45,7 +45,7 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
 
-        User user = userService.findByUserName(userName);
+        User user = ownerUserService.findByUserName(userName);
 
         Car savedCar = carService.addCar(req, user);
         return ResponseEntity.ok(savedCar);
@@ -57,7 +57,7 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
 
-        User user = userService.findByUserName(userName);
+        User user = ownerUserService.findByUserName(userName);
         return ResponseEntity.ok(carService.myCars(user.getId()));
     }
 
@@ -67,7 +67,7 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userName = auth.getName();
 
-        User user = userService.findByUserName(userName);
+        User user = ownerUserService.findByUserName(userName);
         Car updated = carService.updateCar(carId, req, user);
         return ResponseEntity.ok(updated);
     }

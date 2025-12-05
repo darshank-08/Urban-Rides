@@ -3,7 +3,7 @@ package com.example.journalApp.Controller.SuperAdmin;
 import com.example.journalApp.Entity.SuperAdmin;
 import com.example.journalApp.Entity.User;
 import com.example.journalApp.Service.SuperAdminService;
-import com.example.journalApp.Service.UserService;
+import com.example.journalApp.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +15,14 @@ import java.util.List;
 public class SuperAdminController {
 
     @Autowired
-    UserService userService;
+    OwnerUserService ownerUserService;
 
     @Autowired
     SuperAdminService superAdminService;
 
     @GetMapping("/Get-Users")
     public ResponseEntity<?> GetUsers(){
-        List<User> All = userService.getUsers();
+        List<User> All = ownerUserService.getUsers();
         return ResponseEntity.ok(All);
     }
 

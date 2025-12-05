@@ -3,7 +3,7 @@ package com.example.journalApp.Controller.Public;
 import com.example.journalApp.Entity.SuperAdmin;
 import com.example.journalApp.Entity.User;
 import com.example.journalApp.Service.SuperAdminService;
-import com.example.journalApp.Service.UserService;
+import com.example.journalApp.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.*;
 public class PublicController {
 
     @Autowired
-    UserService userService;
+    OwnerUserService ownerUserService;
 
     @Autowired
     SuperAdminService superAdminService;
 
     @PostMapping("/add-user")
     public ResponseEntity<?> add(@RequestBody User user){
-        userService.saveUser(user);
+        ownerUserService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

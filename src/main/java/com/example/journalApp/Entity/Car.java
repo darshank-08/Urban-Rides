@@ -32,8 +32,6 @@ public class Car {
 
     // System Controlled
     private String status; // PENDING_APPROVAL / ACTIVE / REJECTED
-    private String rejectionReason;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime approvedAt;
