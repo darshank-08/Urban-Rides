@@ -1,83 +1,35 @@
-# ---------------------------------------------------
-# Urban Rides Backend - Spring Boot .gitignore
-# ---------------------------------------------------
-
-# Maven
+HELP.md
 target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Logs
-*.log
-logs/
-spring.log
-
-# Java & JVM
-*.class
-*.jar
-*.war
-*.ear
-
-# OS Generated
-.DS_Store
-Thumbs.db
-
-# IDE Folders
-# IntelliJ Idea
-.idea/
-*.iml
-out/
-# VS Code
-.vscode/
-
-# Eclipse / STS
-.apt_generated/
+### STS ###
+.apt_generated
 .classpath
+.factorypath
 .project
-.settings/
-bin/
-
-# Cache
-*.cache
-.cache/
-*.tmp
-*.swp
-*.swo
-
-# Test reports
-surefire-reports/
-test-output/
-
-# Environment Files
-.env
+.settings
+.springBeans
+.sts4-cache
+*.yml
 *.env
 
-# Uploads (User files)
-uploads/
-documents/
-images/
-
-# Security keys
-*.pem
-*.key
-*.p12
-
-# Node modules (if frontend folder exists inside backend)
-node_modules/
-
-# Build artifacts
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+/logs
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
 build/
-dist/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-application.properties
-application.yml
-*.properties
-*.yml
-
-
-# ---------------------------------------------------
-# END
-# ---------------------------------------------------
+### VS Code ###
+.vscode/
