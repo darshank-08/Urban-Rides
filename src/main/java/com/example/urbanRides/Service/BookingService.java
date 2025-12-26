@@ -44,6 +44,9 @@ public class BookingService {
         // 2. Fetch userID
         User renter = userRepository.findByUserName(userName);
 
+        if (renter == null) {
+            return ResponseEntity.badRequest().body("Please log in");
+        }
 
         // 2. Validate dates
         LocalDate startDate = req.getStartDate();
@@ -55,6 +58,12 @@ public class BookingService {
 
         if (endDate.isBefore(startDate)) {
             return ResponseEntity.badRequest().body("End date cannot be before start date");
+        }
+
+        LocalDate today = LocalDate.now();
+
+        if (startDate.isBefore(today)){
+            return ResponseEntity.badRequest().body("Enter valid Start Date");
         }
 
         // 3. Overlap check
@@ -89,6 +98,9 @@ public class BookingService {
         booking.setPaymentMethod(req.getPaymentMethod());
 
         bookingRepository.save(booking);
+
+        car.setStatus("Booked");
+        carRepository.save(car);
 
         return ResponseEntity.ok("Booked successfully!");
     }

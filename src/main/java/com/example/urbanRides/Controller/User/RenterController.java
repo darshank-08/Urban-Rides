@@ -42,7 +42,7 @@ public class RenterController {
     // Active cars
     @GetMapping("/active-cars")
     public ResponseEntity<?> activeCars(){
-        return ResponseEntity.ok(renterUserService.activeCars());
+        return renterUserService.activeCars();
     }
 
     @GetMapping("/car/{carID}")
@@ -57,8 +57,7 @@ public class RenterController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
 
-        ResponseEntity<?> bookProcess =  bookingService.bookCar(carId,req, userName);
-        return ResponseEntity.ok(bookProcess);
+        return bookingService.bookCar(carId,req, userName);
     }
 
     @GetMapping("/my-Bookings")
