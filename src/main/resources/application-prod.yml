@@ -12,7 +12,7 @@ server:
 
   jwt:
     secret: ${JWT_SECRET}
-    expiration: 86400000
+    expiration: ${EXP}
 
   app:
     super-admin:
