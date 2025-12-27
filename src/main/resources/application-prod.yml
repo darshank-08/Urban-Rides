@@ -1,19 +1,17 @@
 spring:
   data:
     mongodb:
-      uri: ${PROD_MONGO_URL}  # Railway environment variable
+      uri: ${PROD_MONGO_URL}
       database: UrbanRides
       auto-index-creation: true
-
-
 
 server:
   port: ${PORT:8080}
 
-  jwt:
-    secret: ${JWT_SECRET}
-    expiration: ${EXP}
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${EXP}
 
-  app:
-    super-admin:
-      key: ${SUPER_ADMIN_KEY}
+app:
+  super-admin:
+    key: ${SUPER_ADMIN_KEY}
