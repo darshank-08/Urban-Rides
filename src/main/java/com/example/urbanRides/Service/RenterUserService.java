@@ -41,7 +41,7 @@ public class RenterUserService {
             Map<String, Object> errorBody = new HashMap<>();
             errorBody.put("code", "USERNAME_TAKEN"); // unique code
             errorBody.put("message", "UserName is already taken");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody); // 409 Conflict
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));

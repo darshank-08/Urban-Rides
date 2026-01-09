@@ -75,7 +75,7 @@ public class SignInController<UserRequestDTO> {
         // DTO -> Entity
         User user = new User();
         user.setUserName(signupRequest.getUserName());
-        user.setPassword(signupRequest.getPassword()); // raw password, service will hash
+        user.setPassword(signupRequest.getPassword());
         user.setFullName(signupRequest.getFullName());
         user.setPhoneNumber(signupRequest.getPhoneNumber());
 
