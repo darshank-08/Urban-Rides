@@ -1,5 +1,7 @@
 package com.example.urbanRides.Service;
 
+import com.example.urbanRides.DTO.Admin.AdminSignReqDTO;
+import com.example.urbanRides.DTO.Admin.AdminSignRespoDTO;
 import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.SuperAdmin;
 import com.example.urbanRides.Entity.User;
@@ -14,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,20 +37,40 @@ public class AdminService {
     SuperAdminRepository superAdminRepository;
 
 
-    public ResponseEntity<?> registerAdmin(SuperAdmin req) {
-        SuperAdmin exists = superAdminRepository.findByAdminName(req.getAdminName());
+    public ResponseEntity<AdminSignRespoDTO> registerAdmin(
+            AdminSignReqDTO req) {
 
-        if (exists != null){
-            return ResponseEntity.badRequest().body("UserName is taken");
+        SuperAdmin exists =
+                superAdminRepository.findByAdminName(req.getAdminName());
+
+        if (exists != null) {
+            // Custom error response
+            Map<String, Object> errorBody = new HashMap<>();
+            errorBody.put("code", "USERNAME_TAKEN"); // unique code
+            errorBody.put("message", "UserName is already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body((AdminSignRespoDTO) errorBody); // 409 Conflict
         }
 
-        req.setAdminPass(passwordEncoder.encode(req.getAdminPass()));
-        req.setAdmin(false);
-        req.setRole("pending");
+        SuperAdmin admin = new SuperAdmin();
+        admin.setAdminName(req.getAdminName());
+        admin.setAdminPass(passwordEncoder.encode(req.getAdminPass()));
+        admin.setAdminFullName(req.getAdminFullName());
+        admin.setAdminNumber(req.getAdminNumber());
 
-        superAdminRepository.save(req);
-        return ResponseEntity.ok("Request is pending for approval by SUPER_ADMIN");
+        admin.setAdmin(false);
+        admin.setRole("PENDING");
+
+        superAdminRepository.save(admin);
+
+        return ResponseEntity.ok(
+                new AdminSignRespoDTO(
+                        admin.getAdminName(),
+                        admin.getRole()
+                )
+        );
     }
+
+
 
     // Get all Approval pending Cars
     public List<Car> getPendingCars() {

@@ -7,6 +7,7 @@ import com.example.urbanRides.Repository.BookingRepository;
 import com.example.urbanRides.Repository.CarRepository;
 import com.example.urbanRides.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,14 +31,19 @@ public class RenterUserService {
     PasswordEncoder passwordEncoder;
 
 
-    // Register or Save User (Owner)
+    // Register or Save User (Renter)
     public ResponseEntity<?> saveUser(User user) {
         String userName = user.getUserName();
         User exists = userRepository.findByUserName(userName);
 
-        if (exists != null){
-            return ResponseEntity.badRequest().body("UserName is taken");
+        if (exists != null) {
+            // Custom error response
+            Map<String, Object> errorBody = new HashMap<>();
+            errorBody.put("code", "USERNAME_TAKEN"); // unique code
+            errorBody.put("message", "UserName is already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody); // 409 Conflict
         }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         List<String> defaultRoles = new ArrayList<>();
         defaultRoles.add("RENTER");

@@ -11,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OwnerUserService {
@@ -35,8 +37,12 @@ public class OwnerUserService {
         String userName = user.getUserName();
         User exists = userRepository.findByUserName(userName);
 
-        if (exists != null){
-           return ResponseEntity.badRequest().body("UserName is taken");
+        if (exists != null) {
+            // Custom error response
+            Map<String, Object> errorBody = new HashMap<>();
+            errorBody.put("code", "USERNAME_TAKEN");
+            errorBody.put("message", "UserName is already taken");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));

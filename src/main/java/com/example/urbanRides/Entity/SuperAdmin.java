@@ -15,7 +15,8 @@ public class SuperAdmin {
     private String adminName;
 
     private String adminPass;
-    private Integer adminNumber;
+    private String adminFullName;
+    private long adminNumber;
     private boolean isAdmin = false;
     private String role;
 
