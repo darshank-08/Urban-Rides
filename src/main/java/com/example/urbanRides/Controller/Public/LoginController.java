@@ -5,6 +5,10 @@ import com.example.urbanRides.DTO.Admin.AdminLoginRespoDTO;
 import com.example.urbanRides.DTO.SuperAdmin.SuperAdminLoginReq;
 import com.example.urbanRides.DTO.User.LoginRequestDTO;
 import com.example.urbanRides.DTO.User.LoginResponseDTO;
+import com.example.urbanRides.Entity.SuperAdmin;
+import com.example.urbanRides.Entity.User;
+import com.example.urbanRides.Repository.SuperAdminRepository;
+import com.example.urbanRides.Repository.UserRepository;
 import com.example.urbanRides.Service.OwnerUserService;
 import com.example.urbanRides.Service.RenterUserService;
 import com.example.urbanRides.Service.SuperAdminService;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -50,6 +55,12 @@ public class LoginController {
     private UserDetailServiceIMPL userDetailServicesIMPL;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
+
+    @Autowired
     private JwtUtils jwtUtils;
 
     @Value("${app.super-admin.key}")
@@ -69,6 +80,16 @@ public class LoginController {
             UserDetails userDetails =
                     userDetailServicesIMPL.loadUserByUsername(request.getUserName());
 
+            User user = userRepository.findByUserName(request.getUserName());
+            if (user == null) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "code", "USER_NOT_FOUND",
+                                "message", "User not found"
+                        ));
+            }
+
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
             List<String> roles = userDetails.getAuthorities()
@@ -85,12 +106,12 @@ public class LoginController {
             );
 
         } catch (BadCredentialsException e) {
-            log.error("Authentication failed", e);
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid username or password");
+                    .body(Map.of("message", "Invalid username or password"));
         }
     }
+
 
 
     @PostMapping("/admin")
@@ -106,6 +127,16 @@ public class LoginController {
 
             UserDetails userDetails = userDetailServicesIMPL.loadUserByUsername(request.getAdminName());
 
+            SuperAdmin superAdmin = superAdminRepository.findByAdminName(request.getAdminName());
+            if (superAdmin == null) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "code", "USER_NOT_FOUND",
+                                "message", "User not found"
+                        ));
+            }
+
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
             // roles extract
@@ -119,7 +150,9 @@ public class LoginController {
             log.error("Authentication failed", e);
             return ResponseEntity
                     .badRequest()
-                    .body("Incorrect username or password");
+                    .body(Map.of(
+                            "message", "Incorrect username or password"
+                    ));
         }
     }
 
@@ -137,12 +170,23 @@ public class LoginController {
             UserDetails userDetails = userDetailServicesIMPL
                     .loadUserByUsername(request.getAdminName());
 
+            SuperAdmin superAdmin = superAdminRepository.findByAdminName(request.getAdminName());
+
+            if (!superAdmin.getRole().equals("SUPERADMIN")){
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of(
+                                "message", "You are not SUPER-ADMIN."
+                        ));
+            }
 
             if (!Objects.equals(superAdminKey, request.getSuperKey())) {
                 log.error("Invalid SuperKey for admin: " + request.getAdminName());
                 return ResponseEntity
                         .status(HttpStatus.FORBIDDEN)
-                        .body("Invalid SuperKey");
+                        .body(Map.of(
+                                "message", "Invalid SuperKey"
+                        ));
             }
 
             // 4️ Generate JWT token
@@ -152,18 +196,19 @@ public class LoginController {
             String role = userDetails.getAuthorities()
                     .stream()
                     .map(auth -> auth.getAuthority())
-                    .findFirst() // first role only
+                    .findFirst() //
                     .orElse("ROLE_SUPERADMIN");
 
             return ResponseEntity.ok(
                     new LoginResponseDTO(jwt, userDetails.getUsername(), Collections.singletonList(role))
             );
 
-        } catch (Exception e) {
-            log.error("Error during SuperAdmin login", e);
+        } catch (BadCredentialsException e) {
             return ResponseEntity
-                    .badRequest()
-                    .body("Incorrect username or password");
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message", "Incorrect username or password"
+                    ));
         }
     }
 
