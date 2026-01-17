@@ -143,8 +143,13 @@ public class LoginController {
             String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
             return ResponseEntity.ok(
-                    new AdminLoginRespoDTO(jwt, userDetails.getUsername(), role)
+                    Map.of(
+                            "token", jwt,
+                            "userName", userDetails.getUsername(),
+                            "roles", List.of(role)
+                    )
             );
+
 
         } catch (Exception e) {
             log.error("Authentication failed", e);

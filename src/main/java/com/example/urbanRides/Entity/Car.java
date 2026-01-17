@@ -18,23 +18,29 @@ public class Car {
     private String ownerId;
     private String ownerName;
 
-    // User Inputs
     private String company;
     private String model;
     private Integer year;
     private List<String> images;
     private String document;
+
     private Double pricePerDay;
     private String location;
     private Integer seats;
     private Double approxMileage;
     private String condition;
 
+    private String fuelType;
+    private String transmission;    // Manual / Automatic
+    private List<String> features;
+
+    // Ratings (Future use)
+    private Double rating;
+    private Integer totalReviews;
+
     // System Controlled
     private String status; // PENDING_APPROVAL / ACTIVE / REJECTED
     private LocalDateTime createdAt;
-
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
-
 }

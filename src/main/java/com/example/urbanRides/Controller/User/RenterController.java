@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/Renter")
+@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*")
 public class RenterController {
 
     @Autowired
