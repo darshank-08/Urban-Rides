@@ -11,4 +11,6 @@ public interface BookingRepository extends MongoRepository <Booking, String>{
     List<Booking> findByrenterId(String id);
 
     List<Booking> findByRenterId(String id);
+
+    boolean existsByCarIdAndStatus(String carId, String confirmed);
 }

@@ -18,4 +18,6 @@ public interface CarRepository extends MongoRepository<Car, String> {
     List<Car> findByRejectedAtAfter(LocalDateTime start);
 
     List<Car> findByOwnerIdAndStatus(String id, String active);
+
+    List<Car> findByOwnerId(String ownerId);
 }

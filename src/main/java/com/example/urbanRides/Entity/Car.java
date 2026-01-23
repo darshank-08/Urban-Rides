@@ -18,9 +18,11 @@ public class Car {
     private String ownerId;
     private String ownerName;
 
+    // By user
     private String company;
     private String model;
     private Integer year;
+    private String HeroImg;
     private List<String> images;
     private String document;
 
@@ -34,9 +36,6 @@ public class Car {
     private String transmission;    // Manual / Automatic
     private List<String> features;
 
-    // Ratings (Future use)
-    private Double rating;
-    private Integer totalReviews;
 
     // System Controlled
     private String status; // PENDING_APPROVAL / ACTIVE / REJECTED

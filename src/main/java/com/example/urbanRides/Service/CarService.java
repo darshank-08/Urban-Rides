@@ -1,9 +1,15 @@
 package com.example.urbanRides.Service;
 
+import com.example.urbanRides.Entity.Booking;
 import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.User;
+import com.example.urbanRides.Repository.BookingRepository;
 import com.example.urbanRides.Repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +20,9 @@ public class CarService {
 
     @Autowired
     private CarRepository carRepository;
+
+    @Autowired
+    private BookingRepository  bookingRepository;
 
     // To add car
     public Car addCar(Car req, User user) {
@@ -27,25 +36,46 @@ public class CarService {
         return carRepository.save(req);
     }
 
-    // To get Cars list
-    public List<Car> myCars(String userId){
-        return carRepository.ownerId(userId);
+    public List<Car> getCarsByOwnerId(String ownerId) {
+        return carRepository.findByOwnerId(ownerId);
     }
 
-    // To delete car
-    public void deleteCar(String carID){
-        carRepository.deleteById(carID);
+    public ResponseEntity<?> deleteCar(String carId) {
+
+        if (!carRepository.existsById(carId)) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Car not found");
+        }
+
+        boolean hasActiveBooking =
+                bookingRepository.existsByCarIdAndStatus(carId, "CONFIRMED");
+
+        if (hasActiveBooking) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("Car cannot be deleted. Active bookings exist.");
+        }
+
+        carRepository.deleteById(carId);
+        return ResponseEntity.ok("Car deleted successfully");
     }
+
 
     // To update cars
-    public Car updateCar(String carId, Car req, User user) {
+    public Car updateCar(String carId, Car req) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        String User = auth.getName();
 
         Car existing = carRepository.findById(carId)
                 .orElse(null);
 
-        if (!existing.getOwnerId().equals(user.getId())) {
-            throw new RuntimeException("You are not allowed to update this car");
-        }
 
         // Update only editable fields
         existing.setCompany(req.getCompany());

@@ -7,6 +7,7 @@ import com.example.urbanRides.Repository.BookingRepository;
 import com.example.urbanRides.Repository.CarRepository;
 import com.example.urbanRides.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingService {
@@ -99,10 +102,49 @@ public class BookingService {
 
         bookingRepository.save(booking);
 
-        car.setStatus("Booked");
-        carRepository.save(car);
+        Map<String, Object> bookingResponse = new LinkedHashMap<>();
 
-        return ResponseEntity.ok("Booked successfully!");
+        bookingResponse.put("bookingId", booking.getId());
+        bookingResponse.put("carId", carID);
+
+        // car block
+        Map<String, Object> carInfo = new LinkedHashMap<>();
+        carInfo.put("company", car.getCompany());
+        carInfo.put("model", car.getModel());
+        carInfo.put("year", car.getYear());
+        bookingResponse.put("car", carInfo);
+
+        // rentalPeriod block
+        Map<String, Object> rentalPeriod = new LinkedHashMap<>();
+        rentalPeriod.put("startDate", startDate);
+        rentalPeriod.put("endDate", endDate);
+        rentalPeriod.put("totalDays", days);
+        bookingResponse.put("rentalPeriod", rentalPeriod);
+
+        // pricing block
+        Map<String, Object> pricing = new LinkedHashMap<>();
+        pricing.put("pricePerDay", car.getPricePerDay());
+        pricing.put("totalAmount", totalPrize);
+        bookingResponse.put("pricing", pricing);
+
+        // payment block
+        Map<String, Object> payment = new LinkedHashMap<>();
+        payment.put("method", booking.getPaymentMethod());
+        payment.put("status", "PENDING");
+        bookingResponse.put("payment", payment);
+
+        // meta
+        bookingResponse.put("status", booking.getStatus());
+        bookingResponse.put("createdAt", booking.getBookedAt());
+
+        // top-level response
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("success", true);
+        response.put("message", "Car booked successfully");
+        response.put("booking", bookingResponse);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
     }
 
     public ResponseEntity<?> myBookings(String userName) {

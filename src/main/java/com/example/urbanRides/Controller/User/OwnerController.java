@@ -3,12 +3,17 @@ package com.example.urbanRides.Controller.User;
 import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Service.CarService;
+import com.example.urbanRides.Service.ImageService;
 import com.example.urbanRides.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/Owner")
@@ -19,6 +24,9 @@ public class OwnerController {
 
     @Autowired
     CarService carService;
+
+    @Autowired
+    ImageService imageService;
 
     // updating user
     @PutMapping("update")
@@ -52,13 +60,13 @@ public class OwnerController {
     }
 
     // all cars list by user
-    @GetMapping("/all-cars")
-    public ResponseEntity<?> AllCars(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getName();
+    @GetMapping("/cars")
+    public ResponseEntity<List<Car>> getAllOwnerCars(Authentication authentication) {
+        String username = authentication.getName();
+        User owner = ownerUserService.findByUserName(username);
 
-        User user = ownerUserService.findByUserName(userName);
-        return ResponseEntity.ok(carService.myCars(user.getId()));
+        List<Car> cars = carService.getCarsByOwnerId(owner.getId());
+        return ResponseEntity.ok(cars);
     }
 
     // updating car details by user
@@ -68,14 +76,14 @@ public class OwnerController {
         String userName = auth.getName();
 
         User user = ownerUserService.findByUserName(userName);
-        Car updated = carService.updateCar(carId, req, user);
+        Car updated = carService.updateCar(carId, req);
         return ResponseEntity.ok(updated);
     }
 
     // deleting cars by user
     @DeleteMapping("/delete-car/{carId}")
     public ResponseEntity<?> deleteCar(@PathVariable String carId){
-        carService.deleteCar(carId);
-        return ResponseEntity.ok("Car removed successfully!");
+        return carService.deleteCar(carId);
     }
+
 }
