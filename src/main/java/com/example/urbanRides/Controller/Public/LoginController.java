@@ -1,17 +1,17 @@
 package com.example.urbanRides.Controller.Public;
 
-import com.example.urbanRides.DTO.Admin.AdminLoginReqDTO;
-import com.example.urbanRides.DTO.Admin.AdminLoginRespoDTO;
-import com.example.urbanRides.DTO.SuperAdmin.SuperAdminLoginReq;
+import com.example.urbanRides.DTO.Employee.EmployeeLoginReqDTO;
+import com.example.urbanRides.DTO.Admin.AdminLoginReq;
 import com.example.urbanRides.DTO.User.LoginRequestDTO;
 import com.example.urbanRides.DTO.User.LoginResponseDTO;
-import com.example.urbanRides.Entity.SuperAdmin;
+import com.example.urbanRides.Entity.Admin;
+import com.example.urbanRides.Entity.Employee;
 import com.example.urbanRides.Entity.User;
-import com.example.urbanRides.Repository.SuperAdminRepository;
+import com.example.urbanRides.Repository.AdminRepository;
+import com.example.urbanRides.Repository.EmployeeRepository;
 import com.example.urbanRides.Repository.UserRepository;
 import com.example.urbanRides.Service.OwnerUserService;
 import com.example.urbanRides.Service.RenterUserService;
-import com.example.urbanRides.Service.SuperAdminService;
 import com.example.urbanRides.Service.UserDetailServiceIMPL;
 import com.example.urbanRides.Utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/login")
@@ -46,9 +43,6 @@ public class LoginController {
     private RenterUserService renterUserService;
 
     @Autowired
-    private SuperAdminService superAdminService;
-
-    @Autowired
     private AuthenticationManager auth;
 
     @Autowired
@@ -58,7 +52,10 @@ public class LoginController {
     private UserRepository userRepository;
 
     @Autowired
-    private SuperAdminRepository superAdminRepository;
+    EmployeeRepository employeeRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -66,6 +63,8 @@ public class LoginController {
     @Value("${app.super-admin.key}")
     private String superAdminKey;
 
+
+    //For Users
     @PostMapping("/user")
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO request) {
 
@@ -112,35 +111,49 @@ public class LoginController {
         }
     }
 
+    //for employee
+    @PostMapping("/employee")
+    public ResponseEntity<?> loginEmployee(@RequestBody EmployeeLoginReqDTO request) {
 
+        Optional<Employee> optionalEmployee =
+                employeeRepository.findByEmpName(request.getEmpName());
 
-    @PostMapping("/admin")
-    public ResponseEntity<?> loginAdmin(@RequestBody AdminLoginReqDTO request) {
+        if (optionalEmployee.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of(
+                            "code", "USER_NOT_FOUND",
+                            "message", "Employee not found"
+                    ));
+        }
+
+        Employee employee = optionalEmployee.get();
+
+        if (!employee.isEmp()) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "message", "Employee account is inactive"
+                    ));
+        }
 
         try {
             auth.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getAdminName(),
-                            request.getAdminPass()
+                            request.getEmpName(),
+                            request.getEmpPass()
                     )
             );
 
-            UserDetails userDetails = userDetailServicesIMPL.loadUserByUsername(request.getAdminName());
-
-            SuperAdmin superAdmin = superAdminRepository.findByAdminName(request.getAdminName());
-            if (superAdmin == null) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(Map.of(
-                                "code", "USER_NOT_FOUND",
-                                "message", "User not found"
-                        ));
-            }
+            UserDetails userDetails =
+                    userDetailServicesIMPL.loadUserByUsername(request.getEmpName());
 
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
-            // roles extract
-            String role = userDetails.getAuthorities().iterator().next().getAuthority();
+            String role = userDetails.getAuthorities()
+                    .iterator()
+                    .next()
+                    .getAuthority();
 
             return ResponseEntity.ok(
                     Map.of(
@@ -148,64 +161,6 @@ public class LoginController {
                             "userName", userDetails.getUsername(),
                             "roles", List.of(role)
                     )
-            );
-
-
-        } catch (Exception e) {
-            log.error("Authentication failed", e);
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of(
-                            "message", "Incorrect username or password"
-                    ));
-        }
-    }
-
-    @PostMapping("/superadmin")
-    public ResponseEntity<?> superAdminLogin(@RequestBody SuperAdminLoginReq request) {
-
-        try {
-            auth.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getAdminName(),
-                            request.getAdminPass()
-                    )
-            );
-
-            UserDetails userDetails = userDetailServicesIMPL
-                    .loadUserByUsername(request.getAdminName());
-
-            SuperAdmin superAdmin = superAdminRepository.findByAdminName(request.getAdminName());
-
-            if (!superAdmin.getRole().equals("SUPERADMIN")){
-                return ResponseEntity
-                        .badRequest()
-                        .body(Map.of(
-                                "message", "You are not SUPER-ADMIN."
-                        ));
-            }
-
-            if (!Objects.equals(superAdminKey, request.getSuperKey())) {
-                log.error("Invalid SuperKey for admin: " + request.getAdminName());
-                return ResponseEntity
-                        .status(HttpStatus.FORBIDDEN)
-                        .body(Map.of(
-                                "message", "Invalid SuperKey"
-                        ));
-            }
-
-            // 4️ Generate JWT token
-            String jwt = jwtUtils.generateToken(userDetails.getUsername());
-
-            // 5️ Send response
-            String role = userDetails.getAuthorities()
-                    .stream()
-                    .map(auth -> auth.getAuthority())
-                    .findFirst() //
-                    .orElse("ROLE_SUPERADMIN");
-
-            return ResponseEntity.ok(
-                    new LoginResponseDTO(jwt, userDetails.getUsername(), Collections.singletonList(role))
             );
 
         } catch (BadCredentialsException e) {
@@ -216,5 +171,76 @@ public class LoginController {
                     ));
         }
     }
+
+
+    //for admin
+    @PostMapping("/admin")
+    public ResponseEntity<?> superAdminLogin(@RequestBody AdminLoginReq request) {
+
+        try {
+
+            Admin admin = adminRepository.findByAdminName(request.getAdminName());
+
+            if (admin == null) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of(
+                                "code", "USER_NOT_FOUND",
+                                "message", "Admin not found"
+                        ));
+            }
+
+            if (!"ADMIN".equals(admin.getRole())) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(Map.of(
+                                "message", "You are not ADMIN."
+                        ));
+            }
+
+            auth.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getAdminName(),
+                            request.getAdminPass()
+                    )
+            );
+
+            if (!Objects.equals(superAdminKey, request.getSuperKey())) {
+                log.error("Invalid SuperKey for admin: " + request.getAdminName());
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .body(Map.of(
+                                "message", "Invalid SuperKey"
+                        ));
+            }
+
+            UserDetails userDetails =
+                    userDetailServicesIMPL.loadUserByUsername(request.getAdminName());
+
+            String jwt = jwtUtils.generateToken(userDetails.getUsername());
+
+            String role = userDetails.getAuthorities()
+                    .stream()
+                    .map(auth -> auth.getAuthority())
+                    .findFirst()
+                    .orElse("ROLE_ADMIN");
+
+            return ResponseEntity.ok(
+                    new LoginResponseDTO(
+                            jwt,
+                            userDetails.getUsername(),
+                            Collections.singletonList(role)
+                    )
+            );
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "message", "Incorrect username or password"
+                    ));
+        }
+    }
+
 
 }

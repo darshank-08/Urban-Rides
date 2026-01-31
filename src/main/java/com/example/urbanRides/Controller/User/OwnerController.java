@@ -2,6 +2,7 @@ package com.example.urbanRides.Controller.User;
 
 import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.User;
+import com.example.urbanRides.Service.EmployeeService;
 import com.example.urbanRides.Service.CarService;
 import com.example.urbanRides.Service.ImageService;
 import com.example.urbanRides.Service.OwnerUserService;
@@ -10,9 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -27,6 +26,17 @@ public class OwnerController {
 
     @Autowired
     ImageService imageService;
+
+    @Autowired
+    EmployeeService employeeService;
+
+    @GetMapping("/user")
+    public User getuser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        return ownerUserService.getUser(userName);
+    }
 
     // updating user
     @PutMapping("update")
@@ -84,6 +94,27 @@ public class OwnerController {
     @DeleteMapping("/delete-car/{carId}")
     public ResponseEntity<?> deleteCar(@PathVariable String carId){
         return carService.deleteCar(carId);
+    }
+
+    // Get all Approval pending Cars
+    @GetMapping("/pending-cars")
+    public ResponseEntity<?> pendingCars(){
+        List<Car> pending = employeeService.getPendingCars();
+        return ResponseEntity.ok(pending);
+    }
+
+    // Get all Active Cars
+    @GetMapping("/active-cars")
+    public ResponseEntity<?> ActiveCars(){
+        List<Car> active = employeeService.activeCars();
+        return ResponseEntity.ok(active);
+    }
+
+    // Get all Rejected Cars
+    @GetMapping("/rejected-cars")
+    public ResponseEntity<?> RejectedCars(){
+        List<Car> rejected = employeeService.rejectedCars();
+        return ResponseEntity.ok(rejected);
     }
 
 }

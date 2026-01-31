@@ -1,21 +1,20 @@
 package com.example.urbanRides.Controller.Public;
 
-import com.example.urbanRides.DTO.Admin.AdminSignReqDTO;
-import com.example.urbanRides.DTO.Admin.AdminSignRespoDTO;
+import com.example.urbanRides.DTO.Admin.AdminLoginReq;
+import com.example.urbanRides.DTO.Admin.AdminSignInReq;
+import com.example.urbanRides.DTO.Admin.AdminSignInRespo;
+import com.example.urbanRides.DTO.Employee.EmployeeSignReqDTO;
+import com.example.urbanRides.DTO.Employee.EmployeeSignRespoDTO;
 import com.example.urbanRides.DTO.User.SignupRequestDTO;
 import com.example.urbanRides.DTO.User.SignupResponseDTO;
-import com.example.urbanRides.Entity.SuperAdmin;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Service.*;
 import com.example.urbanRides.Utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/sign-in")
@@ -29,8 +28,10 @@ public class SignInController<UserRequestDTO> {
     private RenterUserService renterUserService;
 
     @Autowired
-    private AdminService adminService;
+    private EmployeeService employeeService;
 
+    @Autowired
+    private AdminService adminService;
     @Autowired
     private AuthenticationManager auth;
 
@@ -46,13 +47,12 @@ public class SignInController<UserRequestDTO> {
         // DTO -> Entity
         User user = new User();
         user.setUserName(signupRequest.getUserName());
-        user.setPassword(signupRequest.getPassword()); // raw password, service will hash
+        user.setPassword(signupRequest.getPassword());
         user.setFullName(signupRequest.getFullName());
         user.setPhoneNumber(signupRequest.getPhoneNumber());
 
         ResponseEntity<?> response = ownerUserService.saveUser(user);
 
-        // Handle username taken
         if (!response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
@@ -100,12 +100,16 @@ public class SignInController<UserRequestDTO> {
     }
 
 
-    @PostMapping("/admin")
-    public ResponseEntity<AdminSignRespoDTO> newAdmin(
-            @RequestBody AdminSignReqDTO req) {
+    @PostMapping("/Employee")
+    public ResponseEntity<EmployeeSignRespoDTO> newEmployee(
+            @RequestBody EmployeeSignReqDTO req) {
 
-        return adminService.registerAdmin(req);
+        return employeeService.registerAdmin(req);
     }
 
+    @PostMapping("/Admin")
+    public AdminSignInRespo newAdmin(@RequestBody AdminSignInReq req){
+        return adminService.create(req);
+    }
 
 }

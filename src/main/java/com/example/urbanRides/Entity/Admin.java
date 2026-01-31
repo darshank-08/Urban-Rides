@@ -7,7 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("Admins")
 @Data
-public class SuperAdmin {
+public class Admin {
+
     @Id
     private String id;
 
@@ -17,15 +18,8 @@ public class SuperAdmin {
     private String adminPass;
     private String adminFullName;
     private long adminNumber;
-    private boolean isAdmin = false;
-    private String role;
+    private String gender;
 
-    public void setAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-
-        if (Boolean.TRUE.equals(isAdmin) && "PENDING".equals(this.role)) {
-            this.role = "ADMIN";
-        }
-    }
-
+    // default role
+    private String role = "ADMIN";
 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/Owner")
-@CrossOrigin(origins = "http://localhost:5173")   // <-- yahan 5173
+@CrossOrigin(origins = "http://localhost:5173")
 public class UploadController {
 
     private final ImageService imageService;

@@ -39,6 +39,11 @@ public class OwnerUserService {
         return  userRepository.findAll();
     }
 
+    //to get user by name
+    public User getUser(String userName){
+        return userRepository.findByUserName(userName);
+    }
+
     // Register or Save User (Owner)
     public ResponseEntity<?> saveUser(User user) {
         String userName = user.getUserName();

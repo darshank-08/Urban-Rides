@@ -1,156 +1,85 @@
 package com.example.urbanRides.Service;
 
-import com.example.urbanRides.DTO.Admin.AdminSignReqDTO;
-import com.example.urbanRides.DTO.Admin.AdminSignRespoDTO;
-import com.example.urbanRides.Entity.Car;
-import com.example.urbanRides.Entity.SuperAdmin;
-import com.example.urbanRides.Entity.User;
-import com.example.urbanRides.Repository.CarRepository;
-import com.example.urbanRides.Repository.SuperAdminRepository;
-import com.example.urbanRides.Repository.UserRepository;
+import com.example.urbanRides.DTO.Admin.AdminSignInReq;
+import com.example.urbanRides.DTO.Admin.AdminSignInRespo;
+import com.example.urbanRides.Entity.Admin;
+import com.example.urbanRides.Entity.Employee;
+import com.example.urbanRides.Repository.AdminRepository;
+import com.example.urbanRides.Repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class AdminService {
 
     @Autowired
-    private CarRepository carRepository;
+    AdminRepository adminRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    EmployeeRepository employeeRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @Autowired
-    SuperAdminRepository superAdminRepository;
+    public AdminSignInRespo create(AdminSignInReq req) {
 
-
-    public ResponseEntity<AdminSignRespoDTO> registerAdmin(
-            AdminSignReqDTO req) {
-
-        SuperAdmin exists =
-                superAdminRepository.findByAdminName(req.getAdminName());
-
-        if (exists != null) {
-            // Custom error response
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("code", "USERNAME_TAKEN"); // unique code
-            errorBody.put("message", "UserName is already taken");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body((AdminSignRespoDTO) errorBody); // 409 Conflict
-        }
-
-        SuperAdmin admin = new SuperAdmin();
+        // DTO → Entity
+        Admin admin = new Admin();
         admin.setAdminName(req.getAdminName());
         admin.setAdminPass(passwordEncoder.encode(req.getAdminPass()));
         admin.setAdminFullName(req.getAdminFullName());
         admin.setAdminNumber(req.getAdminNumber());
+        admin.setGender(req.getGender());
+        // role default = "ADMIN"
 
-        admin.setAdmin(false);
-        admin.setRole("PENDING");
+        // save to DB
+        Admin savedAdmin = adminRepository.save(admin);
 
-        superAdminRepository.save(admin);
-
-        return ResponseEntity.ok(
-                new AdminSignRespoDTO(
-                        admin.getAdminName(),
-                        admin.getRole()
-                )
+        // Entity → Response DTO
+        return new AdminSignInRespo(
+                savedAdmin.getAdminName(),
+                savedAdmin.getRole()
         );
     }
 
 
-
-    // Get all Approval pending Cars
-    public List<Car> getPendingCars() {
-        return carRepository.findByStatus("PENDING_APPROVAL");
+    public List<Employee> getPendingEmployees() {
+        return employeeRepository.findByIsEmpFalse();
     }
 
-    // Approving Cars
-    public ResponseEntity<?> CarApproval (String carId){
-        Optional<Car> carOpt = carRepository.findById(carId);
+    public Optional<Employee> findByName(String name){
+        return employeeRepository.findByEmpName(name);
+    }
 
-        if (carOpt.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public void approveEmployee(String empId) {
+        Employee emp = employeeRepository.findById(empId)
+                .orElseThrow(() -> new RuntimeException("Employee Not Found"));
+
+        if (!emp.isEmp()) {
+            emp.setEmp(true);          // sets isEmp = true
+            emp.setRole("EMPLOYEE");   // final role
+            employeeRepository.save(emp);
         }
+    }
 
-        Car car = carOpt.get();
+    public void rejectEmployee(String empId) {
+        Employee emp = employeeRepository.findById(empId)
+                .orElseThrow(() -> new RuntimeException("Employee Not Found"));
 
-        if (!car.getStatus().equals("PENDING_APPROVAL")){
-            return ResponseEntity.ok("Car is not pending for approval");
+        if (!emp.isEmp()) {
+            employeeRepository.delete(emp);
         }
-
-        car.setStatus("ACTIVE");
-        car.setApprovedAt(LocalDateTime.now());
-        carRepository.save(car);
-        return ResponseEntity.ok("Car Approved!");
     }
 
-    // Rejecting Cars
-    public ResponseEntity<?> CarRejection (String carId){
-        Optional<Car> carOpt = carRepository.findById(carId);
-
-        if (carOpt.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Car car = carOpt.get();
-
-        if (car.getStatus().equals("REJECT")){
-            return ResponseEntity.ok("Car is already rejected!");
-        }
-
-        car.setStatus("REJECT");
-        car.setRejectedAt(LocalDateTime.now());
-        carRepository.save(car);
-        return ResponseEntity.ok("Car Rejected!");
+    public void deleteEmployee(String empId){
+        employeeRepository.deleteById(empId);
     }
 
-    // List of all Approved Cars
-    public List<Car> activeCars(){
-        return carRepository.findByStatus("ACTIVE");
+    public List<Employee> allEmployees(){
+        return employeeRepository.findAll();
     }
-
-    // List of all Rejected Cars
-    public List<Car> rejectedCars(){
-        return carRepository.findByStatus("REJECT");
-    }
-
-    // Today Pending Cars
-    public List<Car> getTodayPendingCars() {
-        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
-        return carRepository.findByStatusAndCreatedAtAfter("PENDING_APPROVAL", startOfToday);
-    }
-
-    // Today Approved Cars
-    public List<Car> getTodayApprovedCars() {
-        LocalDateTime start = LocalDate.now().atStartOfDay();
-        return carRepository.findByApprovedAtAfter(start);
-    }
-
-    // Today Rejected Cars
-    public List<Car> getTodayRejectedCars() {
-        LocalDateTime start = LocalDate.now().atStartOfDay();
-        return carRepository.findByRejectedAtAfter(start);
-    }
-
-    public List<User> owners(){
-        return userRepository.findByRolesContaining("OWNER");
-    }
-
-    public List<User> renters(){
-        return userRepository.findByRolesContaining("RENTER");
-    }
-
 }

@@ -15,7 +15,7 @@ import java.util.Date;
 public class JwtUtils {
 
     // #1- we're taking random str as secret key. (.env)
-    @Value("${jwt.secret}")       // <-- read from YAML
+    @Value("${jwt.secret}")
     private String SECRET_KEY;
 
     @Value("${jwt.expiration}")

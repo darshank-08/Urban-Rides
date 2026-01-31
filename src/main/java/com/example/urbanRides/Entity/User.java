@@ -20,5 +20,6 @@ public class User {
     private String fullName;
     private long phoneNumber;
     private List<String> roles;
+    private String gender;
 
 }
