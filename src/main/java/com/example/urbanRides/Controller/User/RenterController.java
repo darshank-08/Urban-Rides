@@ -30,14 +30,18 @@ public class RenterController {
     @Autowired
     BookingRepository bookingRepository;
 
+    @GetMapping("/user/{userName}")
+    public ResponseEntity<?> user(@PathVariable String userName){
+        return renterUserService.getUser(userName);
+    }
+
     // updating user
     @PutMapping("/update")
     public ResponseEntity<?> update(@RequestBody User req){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
 
-        ownerUserService.updateUser(userName, req);
-        return ResponseEntity.ok("User Updated Successfully!");
+        return ownerUserService.updateUser(userName, req);
     }
 
     // Active cars

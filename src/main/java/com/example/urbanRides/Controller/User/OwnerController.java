@@ -4,7 +4,7 @@ import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Service.EmployeeService;
 import com.example.urbanRides.Service.CarService;
-import com.example.urbanRides.Service.ImageService;
+import com.example.urbanRides.Service.ImageServices.ImageService;
 import com.example.urbanRides.Service.OwnerUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

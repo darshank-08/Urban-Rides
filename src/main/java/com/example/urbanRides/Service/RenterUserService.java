@@ -145,6 +145,15 @@ public class RenterUserService {
         return ResponseEntity.ok("Account deleted successfully");
     }
 
+    public ResponseEntity<?> getUser(String userName){
+        User user = userRepository.findByUserName(userName);
+
+        if (user == null){
+            return(ResponseEntity.badRequest().body("User not found"));
+        }
+
+        return ResponseEntity.ok(user);
+    }
 
 
 }

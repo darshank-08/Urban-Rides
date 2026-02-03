@@ -19,6 +19,7 @@ public class Booking {
     private double totalPrice;
     private LocalDateTime bookedAt;
     private String status;
+    private String renter;
 
     // by user (renter)
     private LocalDate startDate;

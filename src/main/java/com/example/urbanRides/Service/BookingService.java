@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,17 +149,29 @@ public class BookingService {
     }
 
     public ResponseEntity<?> myBookings(String userName) {
+
         User renter = userRepository.findByUserName(userName);
+        if (renter == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
 
-        List<Booking> myBookings = bookingRepository.findByrenterId(renter.getId());
+        LocalDate today = LocalDate.now();
 
-        if (myBookings.isEmpty()){
-            return ResponseEntity.badRequest().body("No bookings!");
+        List<Booking> myBookings = bookingRepository.findByRenterId(renter.getId())
+                .stream()
+                .filter(b ->
+                        b.getStartDate() != null &&
+                                !b.getStartDate().isBefore(today)
+                )
+                .toList();
+
+        if (myBookings.isEmpty()) {
+            return ResponseEntity.ok("No Booking"); // better than badRequest
         }
 
         return ResponseEntity.ok(myBookings);
-
     }
+
 
     public Booking autoUpdateStatus(Booking booking) {
         LocalDate today = LocalDate.now();

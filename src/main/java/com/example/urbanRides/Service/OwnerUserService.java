@@ -4,16 +4,13 @@ import com.example.urbanRides.Entity.Car;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Repository.CarRepository;
 import com.example.urbanRides.Repository.UserRepository;
+import com.example.urbanRides.Service.ImageServices.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,15 +64,42 @@ public class OwnerUserService {
     }
 
     // Update User
-    public User updateUser(String userName, User req) {
+    public ResponseEntity<?> updateUser(String userName, User req) {
         User existing = userRepository.findByUserName(userName);
 
-        if (existing == null) return null;
+        if (existing == null) return (ResponseEntity.badRequest().body("User not found"));
 
-        existing.setPassword(passwordEncoder.encode(req.getPassword()));
-        existing.setPhoneNumber(req.getPhoneNumber());
+        //Username
+        if (req.getUserName() != null) {
+            existing.setUserName(req.getGender());
+        }
 
-        return userRepository.save(existing);
+        //Phone
+        if (req.getPhoneNumber() != null) {
+            existing.setPhoneNumber(req.getPhoneNumber());
+        }
+
+
+        if(req.getRoles() != null){
+            return ResponseEntity.badRequest().body("Connot update role");
+        }
+
+       //Fullname
+        if (req.getFullName() != null) {
+            existing.setFullName(req.getFullName());
+        }
+
+        //Gender
+        if (req.getGender() != null) {
+            existing.setGender(req.getGender());
+        }
+
+        try {
+            return ResponseEntity.ok(userRepository.save(existing));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Something went Wrong");
+        }
+
     }
 
     public ResponseEntity<?> delete(String userName){

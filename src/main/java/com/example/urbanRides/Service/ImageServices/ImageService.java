@@ -1,4 +1,4 @@
-package com.example.urbanRides.Service;
+package com.example.urbanRides.Service.ImageServices;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

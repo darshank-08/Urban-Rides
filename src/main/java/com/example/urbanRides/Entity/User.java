@@ -18,8 +18,9 @@ public class User {
 
     private String password;
     private String fullName;
-    private long phoneNumber;
+    private Long phoneNumber;
     private List<String> roles;
     private String gender;
+    private String profileImageUrl;
 
 }
