@@ -94,7 +94,7 @@ public class RenterController {
         return renterUserService.cancelBooking(id);
     }
 
-    @DeleteMapping("/delete-account")
+    @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(@RequestBody Delete body) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();

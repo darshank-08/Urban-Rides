@@ -60,8 +60,8 @@ public class AdminService {
                 .orElseThrow(() -> new RuntimeException("Employee Not Found"));
 
         if (!emp.isEmp()) {
-            emp.setEmp(true);          // sets isEmp = true
-            emp.setRole("EMPLOYEE");   // final role
+            emp.setEmp(true);
+            emp.setRole("EMPLOYEE");
             employeeRepository.save(emp);
         }
     }

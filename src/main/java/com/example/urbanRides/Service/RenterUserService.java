@@ -136,8 +136,14 @@ public class RenterUserService {
         );
 
         if (hasActiveBooking) {
-            return ResponseEntity.badRequest()
-                    .body("You cannot delete account while car is currently rented or upcoming booking exists.");
+            return ResponseEntity
+                    .badRequest()
+                    .body(
+                            Map.of(
+                                    "message", "You cannot delete account while car is currently rented or upcoming booking exists.",
+                                    "code", "RENTER_BOOKING_EXISTS"
+                            )
+                    );
         }
 
         userRepository.delete(user);
@@ -152,7 +158,17 @@ public class RenterUserService {
             return(ResponseEntity.badRequest().body("User not found"));
         }
 
-        return ResponseEntity.ok(user);
+        User newUser = new User();
+        newUser.setUserName(user.getUserName());
+        newUser.setId(user.getId());
+        newUser.setRoles(user.getRoles());
+        newUser.setFullName(user.getFullName());
+        newUser.setUserName(user.getUserName());
+        newUser.setPhoneNumber(user.getPhoneNumber());
+        newUser.setProfileImageUrl(user.getProfileImageUrl());
+        newUser.setGender(user.getGender());
+
+        return ResponseEntity.ok(newUser);
     }
 
 

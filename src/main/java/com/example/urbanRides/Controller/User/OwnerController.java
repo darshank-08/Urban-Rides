@@ -1,6 +1,7 @@
 package com.example.urbanRides.Controller.User;
 
 import com.example.urbanRides.Entity.Car;
+import com.example.urbanRides.Entity.Delete;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Service.EmployeeService;
 import com.example.urbanRides.Service.CarService;
@@ -31,7 +32,7 @@ public class OwnerController {
     EmployeeService employeeService;
 
     @GetMapping("/user")
-    public User getuser(){
+    public ResponseEntity<?> getuser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
 
@@ -49,12 +50,12 @@ public class OwnerController {
     }
 
     // deleting user
-    @DeleteMapping("delete")
-    public ResponseEntity<?> delete(){
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(@RequestBody Delete body){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        ownerUserService.delete(userName);
-        return ResponseEntity.ok("User Deleted Successfully!");
+
+        return ownerUserService.delete(userName, body.getPassword());
     }
 
     // Car adding req by user
