@@ -1,5 +1,6 @@
 package com.example.urbanRides.Controller.Admin;
 
+import com.example.urbanRides.DTO.Employee.EmpSignupReqDTO;
 import com.example.urbanRides.Entity.Employee;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Service.AdminService;
@@ -21,28 +22,20 @@ public class AdminController {
     @Autowired
     AdminService adminService;
 
+    @Autowired
+    EmployeeService employeeService;
+
+    @PostMapping("/Employee")
+    public ResponseEntity<?> newEmployee(
+            @RequestBody EmpSignupReqDTO req) {
+
+        return employeeService.registerEmp(req);
+    }
+
     @GetMapping("/Get-Users")
     public ResponseEntity<?> GetUsers(){
         List<User> All = ownerUserService.getUsers();
         return ResponseEntity.ok(All);
-    }
-
-    @GetMapping("/pending")
-    public List<Employee> getPendingEmployees() {
-       List<Employee> pending = adminService.getPendingEmployees();
-       return pending;
-    }
-
-    @PutMapping("/approve/{id}")
-    public ResponseEntity<?> approveEmployee(@PathVariable String id) {
-        adminService.approveEmployee(id);
-        return ResponseEntity.ok("Admin Approved Successfully!");
-    }
-
-    @PutMapping("/reject/{id}")
-    public ResponseEntity<?> rejectEmployee(@PathVariable String id) {
-        adminService.rejectEmployee(id);
-        return ResponseEntity.ok("Admin Rejected Successfully!");
     }
 
     @DeleteMapping("/delete-employee/{id}")

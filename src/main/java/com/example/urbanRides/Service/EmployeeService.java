@@ -1,13 +1,12 @@
 package com.example.urbanRides.Service;
 
-import com.example.urbanRides.DTO.Employee.EmployeeSignReqDTO;
-import com.example.urbanRides.DTO.Employee.EmployeeSignRespoDTO;
+import com.example.urbanRides.DTO.Employee.EmpSignupReqDTO;
+import com.example.urbanRides.DTO.Employee.EmpSignupRespo;
+import com.example.urbanRides.DTO.Employee.EmployeeLoginRespoDTO;
 import com.example.urbanRides.Entity.Car;
-import com.example.urbanRides.Entity.Admin;
 import com.example.urbanRides.Entity.Employee;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Repository.CarRepository;
-import com.example.urbanRides.Repository.AdminRepository;
 import com.example.urbanRides.Repository.EmployeeRepository;
 import com.example.urbanRides.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,7 +26,6 @@ public class EmployeeService {
 
     @Autowired
     private CarRepository carRepository;
-
 
     @Autowired
     private UserRepository userRepository;
@@ -37,39 +36,50 @@ public class EmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
 
-
-    public ResponseEntity<EmployeeSignRespoDTO> registerAdmin(EmployeeSignReqDTO req) {
+    public ResponseEntity<?> registerEmp(EmpSignupReqDTO req) {
 
         Optional<Employee> existingEmployee =
-                employeeRepository.findByEmpName(req.getEmpName());
+                employeeRepository.findByEmpName(req.getUsername());
 
         if (existingEmployee.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new EmployeeSignRespoDTO(
-                            "USERNAME_TAKEN",
-                            "UserName is already taken"
-                    ));
+            return ResponseEntity.badRequest().body(
+                    (EmpSignupReqDTO) Map.of(
+                            "message", "Username is already taken",
+                            "code", "Username taken"
+                    )
+            );
         }
 
         Employee employee = new Employee();
-        employee.setEmpName(req.getEmpName());
-        employee.setEmpPass(passwordEncoder.encode(req.getEmpPass()));
-        employee.setEmpFullName(req.getEmpFullName());
-        employee.setEmpNumber(req.getEmpNumber());
+
+        // By user
+        employee.setEmpName(req.getUsername());
+        employee.setEmpPass(passwordEncoder.encode(req.getPassword()));
+        employee.setEmpFullName(req.getFullName());
+        employee.setEmpNumber(req.getPhoneNumber());
         employee.setGender(req.getGender());
 
-        employee.setEmp(false);
-        employee.setRole("PENDING");
+        String email = req.getEmail();
+
+        if (email == null || !email.endsWith("@gmail.com")) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of(
+                            "status", "FAILED",
+                            "message", "Only Gmail addresses are allowed"
+                    ));
+        }
+        employee.setEmail(req.getEmail());
+
+        // By system
+        employee.setRole("EMPLOYEE");
+        employee.setStatus("ACTIVE");
 
         employeeRepository.save(employee);
 
-        return ResponseEntity.ok(
-                new EmployeeSignRespoDTO(
-                        employee.getEmpName(),
-                        employee.getRole()
-                )
-        );
+        return ResponseEntity.ok("New profile Created successfully");
     }
+
 
 
     // Get all Approval pending Cars

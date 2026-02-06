@@ -59,7 +59,8 @@ public class UserDetailServiceIMPL implements UserDetailsService {
 
             Employee employee = optionalEmployee.get();
 
-            if (employee.isEmp()) {
+            if ("ACTIVE".equals(employee.getStatus())) {
+
                 return org.springframework.security.core.userdetails.User.builder()
                         .username(employee.getEmpName())
                         .password(employee.getEmpPass())

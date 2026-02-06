@@ -10,6 +10,13 @@ import lombok.NoArgsConstructor;
 public class EmployeeLoginRespoDTO {
 
     private String token;
-    private String empName;
+    private String username;
     private String role;
+    private String message;
+
+    public EmployeeLoginRespoDTO(String message, String role) {
+        this.message = message;
+        this.role = role;
+    }
+
 }

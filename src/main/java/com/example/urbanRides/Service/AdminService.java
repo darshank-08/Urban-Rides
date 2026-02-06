@@ -46,34 +46,10 @@ public class AdminService {
         );
     }
 
-
-    public List<Employee> getPendingEmployees() {
-        return employeeRepository.findByIsEmpFalse();
-    }
-
     public Optional<Employee> findByName(String name){
         return employeeRepository.findByEmpName(name);
     }
 
-    public void approveEmployee(String empId) {
-        Employee emp = employeeRepository.findById(empId)
-                .orElseThrow(() -> new RuntimeException("Employee Not Found"));
-
-        if (!emp.isEmp()) {
-            emp.setEmp(true);
-            emp.setRole("EMPLOYEE");
-            employeeRepository.save(emp);
-        }
-    }
-
-    public void rejectEmployee(String empId) {
-        Employee emp = employeeRepository.findById(empId)
-                .orElseThrow(() -> new RuntimeException("Employee Not Found"));
-
-        if (!emp.isEmp()) {
-            employeeRepository.delete(emp);
-        }
-    }
 
     public void deleteEmployee(String empId){
         employeeRepository.deleteById(empId);

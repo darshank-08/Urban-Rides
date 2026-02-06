@@ -116,7 +116,7 @@ public class LoginController {
     public ResponseEntity<?> loginEmployee(@RequestBody EmployeeLoginReqDTO request) {
 
         Optional<Employee> optionalEmployee =
-                employeeRepository.findByEmpName(request.getEmpName());
+                employeeRepository.findByEmpName(request.getUsername());
 
         if (optionalEmployee.isEmpty()) {
             return ResponseEntity
@@ -129,24 +129,24 @@ public class LoginController {
 
         Employee employee = optionalEmployee.get();
 
-        if (!employee.isEmp()) {
+        if ("DISABLED".equals(employee.getStatus())){
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(Map.of(
-                            "message", "Employee account is inactive"
+                            "message", "Account is temporarily disabled"
                     ));
         }
 
         try {
             auth.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmpName(),
-                            request.getEmpPass()
+                            request.getUsername(),
+                            request.getPassword()
                     )
             );
 
             UserDetails userDetails =
-                    userDetailServicesIMPL.loadUserByUsername(request.getEmpName());
+                    userDetailServicesIMPL.loadUserByUsername(request.getUsername());
 
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
 

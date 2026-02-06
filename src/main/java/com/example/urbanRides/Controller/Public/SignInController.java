@@ -1,10 +1,9 @@
 package com.example.urbanRides.Controller.Public;
 
-import com.example.urbanRides.DTO.Admin.AdminLoginReq;
 import com.example.urbanRides.DTO.Admin.AdminSignInReq;
 import com.example.urbanRides.DTO.Admin.AdminSignInRespo;
-import com.example.urbanRides.DTO.Employee.EmployeeSignReqDTO;
-import com.example.urbanRides.DTO.Employee.EmployeeSignRespoDTO;
+import com.example.urbanRides.DTO.Employee.EmpSignupReqDTO;
+import com.example.urbanRides.DTO.Employee.EmployeeLoginRespoDTO;
 import com.example.urbanRides.DTO.User.SignupRequestDTO;
 import com.example.urbanRides.DTO.User.SignupResponseDTO;
 import com.example.urbanRides.Entity.User;
@@ -13,11 +12,10 @@ import com.example.urbanRides.Utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/sign-in")
+@RequestMapping("/sign-up")
 @Slf4j
 public class SignInController<UserRequestDTO> {
 
@@ -32,14 +30,10 @@ public class SignInController<UserRequestDTO> {
 
     @Autowired
     private AdminService adminService;
-    @Autowired
-    private AuthenticationManager auth;
 
     @Autowired
     private UserDetailServiceIMPL userDetailServicesIMPL;
 
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @PostMapping("/owner")
     public ResponseEntity<?> addOwner(@RequestBody SignupRequestDTO signupRequest) {
@@ -99,13 +93,6 @@ public class SignInController<UserRequestDTO> {
         return ResponseEntity.ok(responseDTO);
     }
 
-
-    @PostMapping("/Employee")
-    public ResponseEntity<EmployeeSignRespoDTO> newEmployee(
-            @RequestBody EmployeeSignReqDTO req) {
-
-        return employeeService.registerAdmin(req);
-    }
 
     @PostMapping("/Admin")
     public AdminSignInRespo newAdmin(@RequestBody AdminSignInReq req){
