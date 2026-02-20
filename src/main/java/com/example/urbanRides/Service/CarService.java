@@ -95,5 +95,23 @@ public class CarService {
         return carRepository.save(existing);
     }
 
+    public ResponseEntity<?> activeCars(){
+       List<Car> cars = carRepository.findByStatus("ACTIVE");
+
+       if(cars.isEmpty()){
+           return ResponseEntity.notFound().build();
+       }
+       return ResponseEntity.ok(cars);
+    }
+
+    public ResponseEntity<?> rejectedCars(){
+        List<Car> cars = carRepository.findByStatus("REJECT");
+
+        if(cars.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(cars);
+    }
+
 }
 

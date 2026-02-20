@@ -100,22 +100,20 @@ public class OwnerController {
     // Get all Approval pending Cars
     @GetMapping("/pending-cars")
     public ResponseEntity<?> pendingCars(){
-        List<Car> pending = employeeService.getPendingCars();
-        return ResponseEntity.ok(pending);
+        List<Car> cars = employeeService.getPendingCars();
+        return ResponseEntity.ok(cars);
     }
 
     // Get all Active Cars
     @GetMapping("/active-cars")
     public ResponseEntity<?> ActiveCars(){
-        List<Car> active = employeeService.activeCars();
-        return ResponseEntity.ok(active);
+        return carService.activeCars();
     }
 
     // Get all Rejected Cars
     @GetMapping("/rejected-cars")
     public ResponseEntity<?> RejectedCars(){
-        List<Car> rejected = employeeService.rejectedCars();
-        return ResponseEntity.ok(rejected);
+        return carService.rejectedCars();
     }
 
 }

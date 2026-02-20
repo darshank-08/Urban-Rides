@@ -19,6 +19,7 @@ public class Employee {
     private String empFullName;
     private long empNumber;
     private String gender;
+    private String profileImageUrl;
 
     @Indexed(unique = true)
     private String email;

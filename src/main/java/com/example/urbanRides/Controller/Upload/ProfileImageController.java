@@ -19,7 +19,7 @@ public class ProfileImageController {
 
     @PostMapping("/upload-profile-photo")
     public ResponseEntity<String> uploadProfilePhoto( @RequestParam("file") MultipartFile file,Principal principal) {
-        String userName = principal.getName(); //
+        String userName = principal.getName();
 
         String imageUrl = imageService.uploadProfileImage(file, userName);
 

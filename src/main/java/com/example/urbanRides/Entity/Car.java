@@ -42,4 +42,5 @@ public class Car {
     private LocalDateTime createdAt;
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
+    private String reviewedBy;
 }
