@@ -1,10 +1,15 @@
 package com.example.urbanRides.Controller.User;
 
+import com.example.urbanRides.DTO.Rating.RatingRequest;
 import com.example.urbanRides.Entity.Booking;
+import com.example.urbanRides.Entity.CarRating;
 import com.example.urbanRides.Entity.Delete;
 import com.example.urbanRides.Entity.User;
 import com.example.urbanRides.Repository.BookingRepository;
+import com.example.urbanRides.Repository.CarRatingRepository;
+import com.example.urbanRides.Repository.UserRepository;
 import com.example.urbanRides.Service.BookingService;
+import com.example.urbanRides.Service.CarRatingService;
 import com.example.urbanRides.Service.OwnerUserService;
 import com.example.urbanRides.Service.RenterUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/Renter")
@@ -28,7 +35,13 @@ public class RenterController {
     BookingService bookingService;
 
     @Autowired
-    BookingRepository bookingRepository;
+    CarRatingService ratingService;
+
+    @Autowired
+    CarRatingRepository carRatingRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/user/{userName}")
     public ResponseEntity<?> user(@PathVariable String userName){
@@ -74,17 +87,6 @@ public class RenterController {
         return ResponseEntity.ok(bookings);
     }
 
-    @GetMapping("my-Bookings/{id}")
-    public ResponseEntity<?> getBooking(@PathVariable String id) {
-
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        booking = bookingService.autoUpdateStatus(booking);
-
-        return ResponseEntity.ok(booking);
-    }
-
 
     @PutMapping("/cancel-booking/{id}")
     public ResponseEntity<?> cancelBooking(@PathVariable String id){
@@ -100,5 +102,36 @@ public class RenterController {
         String userName = authentication.getName();
 
         return renterUserService.deleteAccount(userName, body.getPassword());
+    }
+
+    @PostMapping("/submit-rating")
+    public ResponseEntity<?> submitRating(@RequestBody RatingRequest request) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        return ratingService.submitRating(
+                request.getBookingId(),
+                request.getCarId(),
+                userName,
+                request.getScore()
+        );
+    }
+
+    @GetMapping("/my-ratings")
+    public ResponseEntity<?> getMyRatings() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+
+        User user = userRepository.findByUserName(userName);
+
+
+        List<CarRating> carRating = carRatingRepository.findByUserId(user.getId());
+
+        if (carRating == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(carRating);
     }
 }

@@ -93,6 +93,7 @@ public class BookingService {
         booking.setTotalPrice(totalPrize);
         booking.setBookedAt(LocalDateTime.now());
         booking.setStatus("CONFIRMED");
+        booking.setCarImages(car.getImages());
 
         // User fields:
         booking.setStartDate(startDate);
@@ -155,33 +156,13 @@ public class BookingService {
 
         LocalDate today = LocalDate.now();
 
-        List<Booking> myBookings = bookingRepository.findByRenterId(renter.getId())
-                .stream()
-                .filter(b ->
-                        b.getStartDate() != null &&
-                                !b.getStartDate().isBefore(today)
-                )
-                .toList();
+        List<Booking> myBookings = bookingRepository.findByRenterId(renter.getId());
 
         if (myBookings.isEmpty()) {
-            return ResponseEntity.ok("No Booking"); // better than badRequest
+            return ResponseEntity.ok("No Booking");
         }
 
         return ResponseEntity.ok(myBookings);
-    }
-
-
-    public Booking autoUpdateStatus(Booking booking) {
-        LocalDate today = LocalDate.now();
-
-        if (booking.getEndDate().isBefore(today)
-                && booking.getStatus().equals("ACTIVE")) {
-
-            booking.setStatus("COMPLETED");
-            bookingRepository.save(booking);
-        }
-
-        return booking;
     }
 
 

@@ -43,4 +43,8 @@ public class Car {
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
     private String reviewedBy;
+
+    private Double averageRating = 0.0;
+    private Integer totalRatings = 0;
+
 }
