@@ -4,6 +4,7 @@ import com.example.urbanRides.Utils.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,27 +33,25 @@ public class SpringSecurity extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
         http
-                .cors()
-                .and()
+                .cors().and()
                 .csrf().disable()
-
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-
-                .authorizeHttpRequests()
-                .antMatchers("/sign-in/**", "/login/**").permitAll()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/sign-up/**").permitAll()
+                .antMatchers("/login/**").permitAll()
                 .antMatchers("/Admin/**").hasRole("ADMIN")
                 .antMatchers("/Employee/**").hasAnyRole("EMPLOYEE", "ADMIN")
                 .antMatchers("/Owner/**").hasRole("OWNER")
                 .antMatchers("/Renter/**").hasRole("RENTER")
                 .anyRequest().authenticated()
                 .and()
-
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
     }
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

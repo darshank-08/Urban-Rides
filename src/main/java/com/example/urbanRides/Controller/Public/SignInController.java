@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/sign-up")
 @Slf4j
+
 public class SignInController<UserRequestDTO> {
 
     @Autowired
@@ -44,6 +45,7 @@ public class SignInController<UserRequestDTO> {
         user.setPassword(signupRequest.getPassword());
         user.setFullName(signupRequest.getFullName());
         user.setPhoneNumber(signupRequest.getPhoneNumber());
+        user.setGender(signupRequest.getGender());
 
         ResponseEntity<?> response = ownerUserService.saveUser(user);
 
@@ -59,6 +61,9 @@ public class SignInController<UserRequestDTO> {
         responseDTO.setFullName(savedUser.getFullName());
         responseDTO.setPhoneNumber(savedUser.getPhoneNumber());
         responseDTO.setRoles(savedUser.getRoles());
+        responseDTO.setGender(savedUser.getGender());
+
+        System.out.println("HIT /sign-up/renter");
 
         return ResponseEntity.ok(responseDTO);
     }
@@ -72,6 +77,7 @@ public class SignInController<UserRequestDTO> {
         user.setPassword(signupRequest.getPassword());
         user.setFullName(signupRequest.getFullName());
         user.setPhoneNumber(signupRequest.getPhoneNumber());
+        user.setGender(signupRequest.getGender());
 
         ResponseEntity<?> response = renterUserService.saveUser(user);
 
@@ -89,6 +95,7 @@ public class SignInController<UserRequestDTO> {
         responseDTO.setFullName(savedUser.getFullName());
         responseDTO.setPhoneNumber(savedUser.getPhoneNumber());
         responseDTO.setRoles(savedUser.getRoles());
+        responseDTO.setGender(savedUser.getGender());
 
         return ResponseEntity.ok(responseDTO);
     }

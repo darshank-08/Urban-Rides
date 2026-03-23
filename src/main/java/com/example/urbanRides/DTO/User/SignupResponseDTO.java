@@ -11,4 +11,5 @@ public class SignupResponseDTO {
     private String fullName;
     private long phoneNumber;
     private List<String> roles;
+    private String gender;
 }

@@ -21,6 +21,7 @@ target/
 *.iml
 *.ipr
 /logs
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -33,3 +34,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+best_cars_report.pdf
+daily_bookings_report.pdf
+most_rented_cars_report.pdf
+owner_earnings_report.pdf
+top_renters_report.pdf
+
+# Ignore reports package
+src/main/java/com/example/urbanRides/Reports/
