@@ -2,7 +2,7 @@ Urban Rides is a car rental web application where users can browse available car
 
 This repository contains the Spring Boot backend API of the application.
 
-Project Goal:
+## Project Goal
 
 The goal of Urban Rides is to simulate a real-world car rental marketplace with secure authentication, booking workflows, role-based access control, and admin verification systems.
 
