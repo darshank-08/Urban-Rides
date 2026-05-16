@@ -1,3 +1,5 @@
+# Urban Rides - Backend
+
 Urban Rides is a car rental web application where users can browse available cars, apply filters, book cars, manage their bookings, and earn by listing their own vehicles for rent.
 
 This repository contains the Spring Boot backend API of the application.
