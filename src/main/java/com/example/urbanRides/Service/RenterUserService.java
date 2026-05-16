@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -97,20 +98,32 @@ public class RenterUserService {
         Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
 
         if (bookingOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Booking not found.");
         }
 
         Booking booking = bookingOpt.get();
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
 
-        // If rental already started cannot cancel
+        // already cancelled
+        if ("CANCELLED".equalsIgnoreCase(booking.getStatus())) {
+            return ResponseEntity.badRequest()
+                    .body("Booking is already cancelled.");
+        }
+
+        // completed booking cannot be cancelled
+        if ("COMPLETED".equalsIgnoreCase(booking.getStatus())) {
+            return ResponseEntity.badRequest()
+                    .body("Completed booking cannot be cancelled.");
+        }
+
+        // rental started or start date reached
         if (!today.isBefore(booking.getStartDate())) {
             return ResponseEntity.badRequest()
                     .body("You cannot cancel this booking because the rental period has already started.");
         }
 
-        // ✔ Allowed → update status
         booking.setStatus("CANCELLED");
         bookingRepository.save(booking);
 

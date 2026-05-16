@@ -90,9 +90,6 @@ public class RenterController {
 
     @PutMapping("/cancel-booking/{id}")
     public ResponseEntity<?> cancelBooking(@PathVariable String id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getName();
-
         return renterUserService.cancelBooking(id);
     }
 
